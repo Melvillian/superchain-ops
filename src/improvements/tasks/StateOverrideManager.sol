@@ -134,12 +134,15 @@ abstract contract StateOverrideManager is CommonBase {
 
     /// @notice Read state overrides from a TOML config file.
     /// Parses the TOML file and extracts state overrides for specific contracts.
-    function _readStateOverridesFromConfig(string memory taskConfigFilePath) private {
+    function _readStateOverridesFromConfig(string memory taskConfigFilePath)
+        internal
+        returns (Simulation.StateOverride[] memory)
+    {
         string memory toml = vm.readFile(taskConfigFilePath);
         string memory stateOverridesKey = ".stateOverrides";
 
         // Skip if no state overrides section is found
-        if (!toml.keyExists(stateOverridesKey)) return;
+        if (!toml.keyExists(stateOverridesKey)) return _stateOverrides;
 
         // Get all target contract addresses
         string[] memory targetStrings = vm.parseTomlKeys(toml, stateOverridesKey);
@@ -168,5 +171,6 @@ abstract contract StateOverrideManager is CommonBase {
                 stateOverrideStorage.overrides.push(parsedOverrides[i].overrides[j]);
             }
         }
+        return _stateOverrides;
     }
 }
